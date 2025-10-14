@@ -7,7 +7,6 @@ const app = express();
 
 app.use(cors());
 app.use(express.json()); // Middleware
-app.get("/hello", (req, res) => res.send("Hello World!"));
 app.use("/api/", route); // API Routes
 
 // Database Connection
