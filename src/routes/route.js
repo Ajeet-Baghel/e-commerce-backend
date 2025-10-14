@@ -35,7 +35,6 @@ const {
   cancelOrder,
 } = require("../controllers/orderController");
 
-
 // ✅ USER Routes
 Route.post("/addUser", addUsers);
 Route.get("/getAllUsers", authMiddleware, getUsers);
@@ -73,6 +72,5 @@ Route.delete("/clearCart", authMiddleware, clearCart);
 Route.post("/placeOrder", authMiddleware, placeOrder);
 Route.get("/getMyOrder", authMiddleware, getMyOrders);
 Route.delete("/cancelOrder/:id", authMiddleware, cancelOrder);
-
 
 module.exports = Route;

@@ -14,7 +14,9 @@ const placeOrder = async (req, res) => {
       return res.status(400).json({ msg: "Shipping address is required" });
     }
 
-    const cart = await cartModel.findOne({ userId }).populate("items.productId");
+    const cart = await cartModel
+      .findOne({ userId })
+      .populate("items.productId");
 
     if (!cart || cart.items.length === 0) {
       return res.status(400).json({ msg: "Your cart is empty" });
