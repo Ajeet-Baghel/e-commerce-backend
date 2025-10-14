@@ -5,7 +5,7 @@ const cors = require("cors");
 
 const app = express();
 
-app.use(cors());
+// app.use(cors()); // CORS Policy
 app.use(express.json()); // Middleware
 app.use("/api/", route); // API Routes
 
