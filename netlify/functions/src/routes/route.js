@@ -72,5 +72,6 @@ Route.delete("/clearCart", authMiddleware, clearCart);
 Route.post("/placeOrder", authMiddleware, placeOrder);
 Route.get("/getMyOrder", authMiddleware, getMyOrders);
 Route.delete("/cancelOrder/:id", authMiddleware, cancelOrder);
+Route.get("/hello", (req, res) => res.send("Hello World!"));
 
 module.exports = Route;
