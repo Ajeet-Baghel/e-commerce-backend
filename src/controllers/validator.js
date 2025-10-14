@@ -28,5 +28,5 @@ module.exports = {
   isValidEmail,
   isValidPhone,
   isValidPassword,
-  isValidURL
+  isValidURL,
 };

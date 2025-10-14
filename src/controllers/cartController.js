@@ -55,14 +55,12 @@ const addToCart = async (req, res) => {
       }
       cart.totalItems = cart.items.length;
 
-     const populated = await cart.populate("items.productId", "price");
+      const populated = await cart.populate("items.productId", "price");
 
-cart.items = populated.items.filter(item => item.productId); // Clean up
-cart.totalPrice = cart.items.reduce((sum, item) => {
-  return sum + item.productId.price * item.quantity;
-}, 0);
-
-
+      cart.items = populated.items.filter((item) => item.productId); // Clean up
+      cart.totalPrice = cart.items.reduce((sum, item) => {
+        return sum + item.productId.price * item.quantity;
+      }, 0);
     }
 
     await cart.save();
