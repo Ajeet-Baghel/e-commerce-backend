@@ -1,5 +1,5 @@
 [functions]
-  external_node_modules = ["express", "bcrypt", "cors", "jsonwebtoken", "mongoose", "serverless-http"]
+  external_node_modules = ["express"]
 [[redirects]]
   force = true
   from = "/api/*"
