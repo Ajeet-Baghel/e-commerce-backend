@@ -15,29 +15,50 @@ const userSchema = new mongoose.Schema(
     },
     contact: {
       type: Number,
-      required: true,
+      required: function () {
+        return this.authProvider === "local";
+      },
       unique: true,
+      sparse: true,
     },
     password: {
       type: String,
-      required: true,
+      required: function () {
+        return this.authProvider === "local";
+      },
       trim: true,
     },
     address: {
       type: String,
-      required: true,
+      required: function () {
+        return this.authProvider === "local";
+      },
       trim: true,
     },
     gender: {
       type: String,
       enum: ["male", "female", "others"],
-      required: true,
+      required: function () {
+        return this.authProvider === "local";
+      },
       trim: true,
       lowercase: true,
     },
     age: {
       type: Number,
-      required: true,
+      required: function () {
+        return this.authProvider === "local";
+      },
+    },
+    authProvider: {
+      type: String,
+      enum: ["local", "google"],
+      default: "local",
+    },
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true,
     },
   },
   { timestamps: true }

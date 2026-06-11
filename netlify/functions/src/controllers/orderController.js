@@ -63,7 +63,11 @@ const getMyOrders = async (req, res) => {
 const cancelOrder = async (req, res) => {
   try {
     const userId = req.user.userId;
-    const { orderId } = req.params;
+    const { id: orderId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      return res.status(400).json({ msg: "Invalid Order ID" });
+    }
 
     console.log("Cancel Order Request:", { orderId, userId });
 

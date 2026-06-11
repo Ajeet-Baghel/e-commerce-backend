@@ -1,3 +1,4 @@
+require("dotenv").config();
 const app = require("./netlify/functions/src/app");
 
 const PORT = process.env.PORT || 4000;

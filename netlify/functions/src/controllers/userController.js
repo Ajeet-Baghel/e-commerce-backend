@@ -10,6 +10,16 @@ const {
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
+const { OAuth2Client } = require("google-auth-library");
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+const createToken = (user) =>
+  jwt.sign(
+    { userId: user._id, email: user.email },
+    process.env.JWT_SECRET
+    // { expiresIn: "1h" }
+  );
 
 // Add Users
 const addUsers = async (req, res) => {
@@ -168,7 +178,10 @@ const updateUser = async (req, res) => {
         return res.status(400).json({ msg: "Invalid Email" });
       }
 
-      let duplicateEmail = await userModel.findOne({ email });
+      let duplicateEmail = await userModel.findOne({
+        email,
+        _id: { $ne: userId },
+      });
       if (duplicateEmail) {
         return res.status(400).json({ msg: "Email Already Exists" });
       }
@@ -185,7 +198,10 @@ const updateUser = async (req, res) => {
         return res.status(400).json({ msg: "Invalid Contact" });
       }
 
-      let duplicateContact = await userModel.findOne({ contact });
+      let duplicateContact = await userModel.findOne({
+        contact,
+        _id: { $ne: userId },
+      });
       if (duplicateContact) {
         return res.status(400).json({ msg: "Contact Already Exists" });
       }
@@ -233,11 +249,18 @@ const updateUser = async (req, res) => {
       return res.status(400).json({ msg: "Age is Required" });
     }
 
-    let update = await userModel.findByIdAndUpdate(
-      userId,
-      { name, email, contact, password: hashedPassword, address, gender, age },
-      { new: true }
-    );
+    const updateData = {};
+    if (name !== undefined) updateData.name = name;
+    if (email !== undefined) updateData.email = email;
+    if (contact !== undefined) updateData.contact = contact;
+    if (password !== undefined) updateData.password = hashedPassword;
+    if (address !== undefined) updateData.address = address;
+    if (gender !== undefined) updateData.gender = gender;
+    if (age !== undefined) updateData.age = age;
+
+    let update = await userModel
+      .findByIdAndUpdate(userId, { $set: updateData }, { new: true })
+      .select("-password");
 
     if (!update) {
       return res.status(404).json({ msg: "No User Found" });
@@ -302,16 +325,16 @@ const loginUser = async (req, res) => {
       return res.status(404).json({ msg: "User not Found with this email" });
     }
 
+    if (!user.password) {
+      return res.status(400).json({ msg: "Please sign in with Google for this account" });
+    }
+
     const matchUser = await bcrypt.compare(password, user.password);
     if (!matchUser) {
       return res.status(401).json({ msg: "Incorrect Password" });
     }
 
-    const token = jwt.sign(
-      { userId: user._id, email: user.email },
-      "my-secret-key"
-      // { expiresIn: "1h" }
-    );
+    const token = createToken(user);
 
     return res.status(200).json({ msg: "Login Successfull", token });
   } catch (error) {
@@ -320,4 +343,60 @@ const loginUser = async (req, res) => {
   }
 };
 
-module.exports = { addUsers, getUsers, updateUser, deleteUser, loginUser };
+const googleLoginUser = async (req, res) => {
+  try {
+    const { credential } = req.body;
+
+    if (!process.env.GOOGLE_CLIENT_ID) {
+      return res.status(500).json({ msg: "Google login is not configured" });
+    }
+
+    if (!credential) {
+      return res.status(400).json({ msg: "Google credential is required" });
+    }
+
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+
+    if (!payload?.email || !payload.email_verified) {
+      return res.status(401).json({ msg: "Google account email is not verified" });
+    }
+
+    let user = await userModel.findOne({ email: payload.email });
+
+    if (user) {
+      if (!user.googleId) {
+        user.googleId = payload.sub;
+        user.authProvider = user.authProvider || "google";
+        await user.save();
+      }
+    } else {
+      user = await userModel.create({
+        name: payload.name || payload.email.split("@")[0],
+        email: payload.email,
+        authProvider: "google",
+        googleId: payload.sub,
+      });
+    }
+
+    const token = createToken(user);
+
+    return res.status(200).json({ msg: "Google Login Successfull", token });
+  } catch (error) {
+    console.log(error);
+    return res.status(401).json({ msg: "Google Login Failed" });
+  }
+};
+
+module.exports = {
+  addUsers,
+  getUsers,
+  updateUser,
+  deleteUser,
+  loginUser,
+  googleLoginUser,
+};
