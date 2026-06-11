@@ -10,6 +10,7 @@ const {
   updateUser,
   deleteUser,
   loginUser,
+  googleLoginUser,
 } = require("../controllers/userController");
 
 const {
@@ -35,14 +36,17 @@ const {
   cancelOrder,
 } = require("../controllers/orderController");
 
-// ✅ USER Routes
+const { generateProductContent } = require("../controllers/aiController");
+
+// USER Routes
 Route.post("/addUser", addUsers);
 Route.get("/getAllUsers", authMiddleware, getUsers);
 Route.put("/updateUser/:id", authMiddleware, updateUser);
 Route.delete("/deleteUser/:id", authMiddleware, deleteUser);
 Route.post("/login", loginUser);
+Route.post("/auth/google", googleLoginUser);
 
-// ✅ PROFILE ROUTE (Add this!)
+// PROFILE Route
 Route.get("/user/profile", authMiddleware, async (req, res) => {
   try {
     const user = await userModel.findById(req.user.userId).select("-password");
@@ -53,7 +57,7 @@ Route.get("/user/profile", authMiddleware, async (req, res) => {
   }
 });
 
-// ✅ PRODUCT Routes
+// PRODUCT Routes
 Route.post("/addProducts", authMiddleware, addProducts);
 Route.get("/getAllProducts", getAllProducts);
 Route.get("/getProductById/:id", getProductById);
@@ -61,14 +65,17 @@ Route.get("/getProductsByQuery", getProductsByQuery);
 Route.put("/updateProduct/:id", authMiddleware, updateProduct);
 Route.delete("/deleteProduct/:id", authMiddleware, deleteProduct);
 
-// ✅ CART Routes
+// AI Routes
+Route.post("/ai/product-content", authMiddleware, generateProductContent);
+
+// CART Routes
 Route.post("/addToCart", authMiddleware, addToCart);
 Route.get("/getCart", authMiddleware, getCart);
 Route.put("/updateCart", authMiddleware, updateCart);
 Route.delete("/removeItem/:productId", authMiddleware, removeItemFromCart);
 Route.delete("/clearCart", authMiddleware, clearCart);
 
-// ✅ ORDER Routes
+// ORDER Routes
 Route.post("/placeOrder", authMiddleware, placeOrder);
 Route.get("/getMyOrder", authMiddleware, getMyOrders);
 Route.delete("/cancelOrder/:id", authMiddleware, cancelOrder);

@@ -81,7 +81,10 @@ const getCart = async (req, res) => {
       .populate("items.productId", "productName productImage price");
 
     if (!cart) {
-      return res.status(404).json({ msg: "Cart is Empty" });
+      return res.status(200).json({
+        msg: "Cart is Empty",
+        cart: { items: [], totalItems: 0, totalPrice: 0 },
+      });
     }
     return res.status(200).json({ msg: "Cart Fetched Successfully", cart });
   } catch (error) {
@@ -105,7 +108,7 @@ const updateCart = async (req, res) => {
     if (
       !isValid(quantity) ||
       typeof quantity !== "number" ||
-      quantity < 1 ||
+      quantity < 0 ||
       !Number.isInteger(quantity)
     ) {
       return res.status(400).json({ msg: "Valid Quantity is Required" });

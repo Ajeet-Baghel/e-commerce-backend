@@ -16,7 +16,9 @@
     "@types/express": "^5.0.3",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
+    "dotenv": "^17.3.1",
     "express": "^5.1.0",
+    "google-auth-library": "^10.4.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.15.1",
     "serverless-http": "^4.0.0"

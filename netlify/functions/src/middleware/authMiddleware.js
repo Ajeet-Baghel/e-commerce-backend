@@ -8,7 +8,11 @@ const authMiddleware = (req, res, next) => {
       return res.status(401).json({ msg: "Access Denied! Login First !!!" });
     }
 
-    const verifiedToken = jwt.verify(token, "my-secret-key");
+    if (token.startsWith("Bearer ")) {
+      token = token.slice(7);
+    }
+
+    const verifiedToken = jwt.verify(token, process.env.JWT_SECRET);
     req.user = verifiedToken;
     next();
   } catch (error) {
