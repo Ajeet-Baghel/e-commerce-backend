@@ -7,6 +7,10 @@ const cors = require("cors");
 
 const app = express();
 
+  app.get("/", (req, res) => {
+  res.send("E-commerce backend is running");
+});
+
 app.use(cors()); // CORS Policy
 app.use(express.json()); // Middleware
 app.use("/api", route); // API Routes for local and redirected requests
@@ -17,5 +21,6 @@ mongoose
   .connect(process.env.MONGO_URL)
   .then(() => console.log("MongoDb is Connected"))
   .catch((err) => console.log("DB Connection Failed", err.message));
+
 
 module.exports = app;
